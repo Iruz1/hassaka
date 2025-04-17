@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.h-screen-80 {
+    height: 80vh;
+}
+
+/* Dark mode adjustments */
+.dark .border-gray-600 {
+    border-color: #4b5563;
+}
+
+.dark .bg-gray-800 {
+    background-color: #1f2937;
+}
+
+.dark .text-gray-300 {
+    color: #d1d5db;
+}
