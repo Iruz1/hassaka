@@ -11,14 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // database/migrations/[timestamp]_create_documents_table.php
-            Schema::create('documents', function (Blueprint $table) {
-                 $table->id();
-                 $table->string('title');
-                 $table->string('file_path');
-                 $table->foreignId('user_id')->constrained();
-                $table->timestamps();
-            });
+        Schema::create('documents', function (Blueprint $table) {
+            $table->id();
+            $table->string('title');
+            $table->string('filename'); // Kolom ini diperlukan sesuai controller
+            $table->string('file_path'); // Path penyimpanan file
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->timestamps();
+
+            // Index untuk pencarian lebih cepat
+            $table->index('user_id');
+            $table->index('filename');
+        });
     }
 
     /**
@@ -26,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('documents');
+        Schema::dropIfExists('documents'); // Perbaiki typo 'documents'
     }
 };

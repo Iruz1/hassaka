@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Document;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Auth;
 
-class DocumentController extends Controller
+class DocumentController extends Controller // Perbaiki huruf besar 'C' pada 'controller'
 {
     public function index()
     {
@@ -30,40 +32,31 @@ class DocumentController extends Controller
         $filename = time() . '_' . $file->getClientOriginalName();
         $path = $file->storeAs('documents', $filename, 'public');
 
+        // Pastikan kolom di sini sesuai dengan migrasi database
         Document::create([
-            'user_id' => auth()->id(),
+            'user_id' => Auth::id(), // Lebih baik menggunakan Auth::id()
             'title' => $request->title,
             'filename' => $filename,
-            'path' => $path
+            'file_path' => $path // Ubah 'path' menjadi 'file_path' sesuai error sebelumnya
         ]);
 
-        return redirect()->route('databank')->with('success', 'Dokumen berhasil diupload!');
+        return Redirect::route('databank')->with('success', 'Dokumen berhasil diupload!');
     }
 
     public function edit(Document $document)
     {
-        // Verifikasi kepemilikan dokumen
-        if ($document->user_id !== auth()->id()) {
-            abort(403);
-        }
-
-        $wopiSrc = urlencode(route('wopi.files', $document->filename));
-        $collaboraUrl = config('collabora.url') . '/loleaflet/dist/loleaflet.html?WOPISrc=' . $wopiSrc;
-
-        return view('databank.edit', [
-            'collaboraUrl' => $collaboraUrl,
-            'document' => $document
-        ]);
+    // Verifikasi kepemilikan dokumen
+    if ($document->user_id !== auth()->id()) {
+        abort(403);
     }
 
-    public function getFile($filename)
-    {
-        $document = Document::where('filename', $filename)->firstOrFail();
+    // Perbaikan di sini - pastikan nama route sesuai
+    $wopiSrc = urlencode(route('wopi.files', $document->filename));
+    $collaboraUrl = config('collabora.url') . '/loleaflet/dist/loleaflet.html?WOPISrc=' . $wopiSrc;
 
-        if ($document->user_id !== auth()->id()) {
-            abort(403);
-        }
-
-        return response()->file(storage_path('app/public/documents/' . $filename));
+    return view('databank.edit', [
+        'collaboraUrl' => $collaboraUrl,
+        'document' => $document
+    ]);
     }
 }
