@@ -1,0 +1,17 @@
+version: '3'
+services:
+  collabora:
+    image: collabora/code:latest
+    container_name: collabora
+    restart: always
+    ports:
+      - "9980:9980"
+    environment:
+      - domain=localhost\|127.0.0.1
+      - DONT_GEN_SSL_CERT=yes
+      - extra_params=--o:ssl.enable=false
+    volumes:
+         - /c/laragon/www/hassaka/storage/app/public/documents:/var/www/html/storage/app/public/documents
+    cap_add:
+      - MKNOD
+

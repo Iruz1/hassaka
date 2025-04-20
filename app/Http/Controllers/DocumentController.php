@@ -43,20 +43,36 @@ class DocumentController extends Controller // Perbaiki huruf besar 'C' pada 'co
         return Redirect::route('databank')->with('success', 'Dokumen berhasil diupload!');
     }
 
+    public function getFile($filename)
+    {
+        $document = Document::where('filename', $filename)->firstOrFail();
+
+         $path = storage_path('app/public/documents/' . $filename);
+
+         if (!file_exists($path)) {
+        abort(404, 'File not found at: ' . $path);
+        }
+
+        return response()->file($path, [
+            'Content-Type' => mime_content_type($path),
+            'X-WOPI-ItemVersion' => $document->updated_at->timestamp
+        ]);
+        }
+
     public function edit(Document $document)
     {
-    // Verifikasi kepemilikan dokumen
-    if ($document->user_id !== auth()->id()) {
-        abort(403);
+    // Authorization - pastikan user hanya bisa edit dokumen miliknya
+        if ($document->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized action.');
     }
 
-    // Perbaikan di sini - pastikan nama route sesuai
-    $wopiSrc = urlencode(route('wopi.files', $document->filename));
-    $collaboraUrl = config('collabora.url') . '/loleaflet/dist/loleaflet.html?WOPISrc=' . $wopiSrc;
+    // Generate URL untuk Collabora
+         $wopiSrc = urlencode(route('wopi.files', $document->filename));
+            $collaboraUrl = config('collabora.url') . '/loleaflet/dist/loleaflet.html?WOPISrc=' . $wopiSrc;
 
-    return view('databank.edit', [
-        'collaboraUrl' => $collaboraUrl,
-        'document' => $document
-    ]);
+        return view('databank.edit', [
+            'collaboraUrl' => $collaboraUrl,
+            'document' => $document
+        ]);
     }
 }

@@ -3,6 +3,7 @@
     use App\Http\Controllers\ProfileController;
     use Illuminate\Support\Facades\Route;
     use App\Http\Controllers\DocumentController;
+    use App\Http\Controllers\ProjectScheduleController;
 
     Route::get('/', function () {
         return view('auth.login');
@@ -28,9 +29,11 @@
             ->name('wopi.files');
     });
 
-    Route::get('/Schedule', function () {
-        return view('Schedule');
-    })->middleware(['auth', 'verified'])->name('Schedule');
+    Route::middleware(['auth'])->group(function () {
+        Route::get('/documents/{document}/edit', [DocumentController::class, 'edit'])
+            ->name('documents.edit');
+    });
+
 
     Route::middleware('auth')->group(function () {
         Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -38,6 +41,20 @@
         Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     });
 
+
+    Route::get('/schedules', function () {
+        return view('schedules');
+    })->middleware(['auth', 'verified'])->name('schedules');
+
+    // Jadwal Project
+    Route::middleware('schedules')->group(function () {
+        Route::get('/', [ProjectScheduleController::class, 'index'])->name('schedules.index');
+        Route::get('/create', [ProjectScheduleController::class, 'create'])->name('schedules.create');
+        Route::post('/', [ProjectScheduleController::class, 'store'])->name('schedules.store');
+        Route::get('/{schedule}/edit', [ProjectScheduleController::class, 'edit'])->name('schedules.edit');
+        Route::put('/{schedule}', [ProjectScheduleController::class, 'update'])->name('schedules.update');
+        Route::delete('/{schedule}', [ProjectScheduleController::class, 'destroy'])->name('schedules.destroy');
+        });
 
 
     require __DIR__.'/auth.php';
