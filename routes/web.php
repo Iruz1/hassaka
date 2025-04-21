@@ -42,18 +42,13 @@
     });
 
 
-    Route::get('/schedules', function () {
-        return view('schedules');
-    })->middleware(['auth', 'verified'])->name('schedules');
 
-    // Jadwal Project
-    Route::middleware('schedules')->group(function () {
-        Route::get('/', [ProjectScheduleController::class, 'index'])->name('schedules.index');
-        Route::get('/create', [ProjectScheduleController::class, 'create'])->name('schedules.create');
-        Route::post('/', [ProjectScheduleController::class, 'store'])->name('schedules.store');
-        Route::get('/{schedule}/edit', [ProjectScheduleController::class, 'edit'])->name('schedules.edit');
-        Route::put('/{schedule}', [ProjectScheduleController::class, 'update'])->name('schedules.update');
-        Route::delete('/{schedule}', [ProjectScheduleController::class, 'destroy'])->name('schedules.destroy');
+    Route::get('/schedules', function () {
+            return view('schedules');
+        })->name('schedules');
+
+    Route::middleware(['auth', 'verified'])->group(function() {
+            Route::resource('schedules', ProjectScheduleController::class);
         });
 
 
