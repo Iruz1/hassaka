@@ -3,7 +3,7 @@
     use App\Http\Controllers\ProfileController;
     use Illuminate\Support\Facades\Route;
     use App\Http\Controllers\DocumentController;
-    use App\Http\Controllers\ProjectScheduleController;
+    use App\Http\Controllers\ProjectController;
 
     Route::get('/', function () {
         return view('auth.login');
@@ -42,14 +42,15 @@
     });
 
 
+    Route::middleware(['auth'])->group(function () {
+        // Route resource dengan parameter yang eksplisit
+        Route::resource('project', ProjectController::class)->parameters([
+            'project' => 'project:id' // Pastikan parameter menggunakan :id untuk binding model
+        ]);
 
-    Route::get('/schedules', function () {
-            return view('schedules');
-        })->name('schedules');
+        Route::get('/project/calendar', [ProjectController::class, 'calendar'])->name('project.calendar');
+    });
 
-    Route::middleware(['auth', 'verified'])->group(function() {
-            Route::resource('schedules', ProjectScheduleController::class);
-        });
 
 
     require __DIR__.'/auth.php';

@@ -3,10 +3,10 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\ProjectSchedule;
+use App\Models\Project;
 use Carbon\Carbon;
 
-class ProjectScheduleSeeder extends Seeder
+class ProjectSeeder extends Seeder
 {
     public function run()
     {
