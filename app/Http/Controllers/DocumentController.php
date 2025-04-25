@@ -34,10 +34,10 @@ class DocumentController extends Controller // Perbaiki huruf besar 'C' pada 'co
 
         // Pastikan kolom di sini sesuai dengan migrasi database
         Document::create([
-            'user_id' => Auth::id(), // Lebih baik menggunakan Auth::id()
+            'user_id' => Auth::id(),
             'title' => $request->title,
             'filename' => $filename,
-            'file_path' => $path // Ubah 'path' menjadi 'file_path' sesuai error sebelumnya
+            'file_path' => $path
         ]);
 
         return Redirect::route('databank')->with('success', 'Dokumen berhasil diupload!');
@@ -61,12 +61,12 @@ class DocumentController extends Controller // Perbaiki huruf besar 'C' pada 'co
 
     public function edit(Document $document)
     {
-    // Authorization - pastikan user hanya bisa edit dokumen miliknya
+
         if ($document->user_id !== auth()->id()) {
             abort(403, 'Unauthorized action.');
     }
 
-    // Generate URL untuk Collabora
+
          $wopiSrc = urlencode(route('wopi.files', $document->filename));
             $collaboraUrl = config('collabora.url') . '/loleaflet/dist/loleaflet.html?WOPISrc=' . $wopiSrc;
 

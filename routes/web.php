@@ -4,6 +4,8 @@
     use Illuminate\Support\Facades\Route;
     use App\Http\Controllers\DocumentController;
     use App\Http\Controllers\ProjectController;
+    use App\Http\Controllers\ExportController;
+    use App\Http\Controllers\InsightController;
 
     Route::get('/', function () {
         return view('auth.login');
@@ -23,15 +25,17 @@
         Route::post('/databank/upload', [DocumentController::class, 'upload'])->name('databank.upload.submit');
         Route::get('/databank/edit/{document}', [DocumentController::class, 'edit'])->name('databank.edit');
     });
-    Route::middleware(['auth'])->group(function () {
-        // Route untuk WOPI integration
-        Route::get('/wopi/files/{filename}', [DocumentController::class, 'getFile'])
-            ->name('wopi.files');
-    });
 
     Route::middleware(['auth'])->group(function () {
         Route::get('/documents/{document}/edit', [DocumentController::class, 'edit'])
             ->name('documents.edit');
+    });
+
+
+    Route::middleware(['auth'])->group(function () {
+        // Route untuk WOPI integration
+        Route::get('/wopi/files/{filename}', [DocumentController::class, 'getFile'])
+            ->name('wopi.files');
     });
 
 
@@ -49,8 +53,21 @@
         ]);
 
         Route::get('/project/calendar', [ProjectController::class, 'calendar'])->name('project.calendar');
+        Route::get('/project/edit', [ProjectController::class, 'edit'])->name('project.edit');
+        Route::get('/project/destroy', [ProjectController::class, 'destroy'])->name('project.destroy');
+
     });
 
+    Route::middleware(['auth'])->group(function () {
+        // Data Insights
+        Route::get('/insights', [InsightController::class, 'index'])->name('insights.index');
+        Route::get('/insights/fetch', [InsightController::class, 'fetchFromApis'])->name('insights.fetch')
+            ->middleware('can:fetch-data');
+
+        // Export
+        Route::get('/insights/export', [ExportController::class, 'showExportForm'])->name('insights.export.form');
+        Route::get('/insights/export/data', [ExportController::class, 'export'])->name('insights.export');
+    });
 
 
     require __DIR__.'/auth.php';
