@@ -9,8 +9,9 @@
 <?php endif; ?>
 <?php $component->withAttributes([]); ?>
      <?php $__env->slot('header', null, []); ?> 
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Data Insights
+        <h2 class="font-semibold text-xl text-gray-800 dark:text-blue-500 leading-tight">
+            <?php echo e(__('Data Insight')); ?>
+
         </h2>
      <?php $__env->endSlot(); ?>
 

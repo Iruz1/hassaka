@@ -10,8 +10,9 @@
 <?php $component->withAttributes([]); ?>
      <?php $__env->slot('header', null, []); ?> 
         <div class="d-flex justify-content-between align-items-center">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                Jadwal Project Bulanan
+            <h2 class="font-semibold text-xl text-gray-800 dark:text-blue-500 leading-tight">
+            <?php echo e(__('Schedule')); ?>
+
             </h2>
             <div>
                 <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('create', App\Models\Project::class)): ?>
