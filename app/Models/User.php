@@ -2,10 +2,11 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class User extends Authenticatable
 {
@@ -21,6 +22,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role_id', // Tambahkan ini untuk relasi role
     ];
 
     /**
@@ -44,5 +46,91 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Relasi ke Role
+     */
+    public function role(): BelongsTo
+    {
+        return $this->belongsTo(Role::class);
+    }
+
+    /**
+     * Relasi ke Project sebagai Owner
+     */
+    public function ownedProjects(): HasMany
+    {
+        return $this->hasMany(Project::class, 'owner_id');
+    }
+
+    /**
+     * Relasi ke Project sebagai Marketing
+     */
+    public function managedProjects(): HasMany
+    {
+        return $this->hasMany(Project::class, 'marketing_id');
+    }
+
+    /**
+     * Relasi ke Project sebagai Creator
+     */
+    public function createdProjects(): HasMany
+    {
+        return $this->hasMany(Project::class, 'created_by');
+    }
+
+    /**
+     * Cek apakah user adalah admin
+     */
+    public function isAdmin(): bool
+    {
+        return $this->role->name === 'admin';
+    }
+
+    /**
+     * Cek apakah user adalah owner
+     */
+    public function isOwner(): bool
+    {
+        return $this->role->name === 'owner';
+    }
+
+    /**
+     * Cek apakah user adalah marketing
+     */
+    public function isMarketing(): bool
+    {
+        return $this->role->name === 'marketing';
+    }
+
+    /**
+     * Scope untuk mendapatkan hanya admin
+     */
+    public function scopeAdmins($query)
+    {
+        return $query->whereHas('role', function($q) {
+            $q->where('name', 'admin');
+        });
+    }
+
+    /**
+     * Scope untuk mendapatkan hanya owner
+     */
+    public function scopeOwners($query)
+    {
+        return $query->whereHas('role', function($q) {
+            $q->where('name', 'owner');
+        });
+    }
+
+    /**
+     * Scope untuk mendapatkan hanya marketing
+     */
+    public function scopeMarketing($query)
+    {
+        return $query->whereHas('role', function($q) {
+            $q->where('name', 'marketing');
+        });
     }
 }

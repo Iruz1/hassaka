@@ -3,74 +3,88 @@
 namespace App\Http\Controllers;
 
 use App\Models\Project;
-use Illuminate\Http\Request;
-use Illuminate\Routing\Controller as BaseController;
+use App\Http\Requests\StoreProjectRequest;
+use App\Http\Requests\UpdateProjectRequest;
 
-class ProjectController extends BaseController
+class ProjectController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth');
+        $this->authorizeResource(Project::class, 'project');
     }
 
+    /**
+     * Display a listing of projects.
+     */
     public function index()
     {
-        $schedules = Project::orderBy('date')->get();
-        return view('project.index', compact('schedules'));
+        $projects = auth()->user()->isAdmin()
+            ? Project::with(['owner', 'marketing'])->latest()->paginate(10)
+            : Project::editableBy(auth()->user())->latest()->paginate(10);
+
+        return view('project.index', compact('projects'));
     }
 
+    /**
+     * Show the form for creating a new project.
+     */
     public function create()
     {
         return view('project.create');
     }
 
-    public function store(Request $request)
+    /**
+     * Store a newly created project in storage.
+     */
+    public function store(StoreProjectRequest $request)
     {
-        $validated = $request->validate([
-            'date' => 'required|date',
-            'project_name' => 'required|string|max:255',
-            'location' => 'required|string|max:255',
-            'description' => 'required|string',
+        $project = Project::create([
+            ...$request->validated(),
+            'owner_id' => auth()->id(),
+            'created_by' => auth()->id()
         ]);
 
-        Project::create($validated);
-
-        return redirect()->route('project.index')->with('success', 'Jadwal berhasil ditambahkan!');
+        return redirect()->route('project.index')
+            ->with('success', 'Project created successfully.');
     }
 
-    public function show(Project $schedule)
+    /**
+     * Display the specified project.
+     */
+    public function show(Project $project)
     {
-        return view('project.show', ['project' => $schedule]);
+        return view('project.show', compact('project'));
     }
 
-    public function edit(Project $schedule)
+    /**
+     * Show the form for editing the specified project.
+     */
+    public function edit(Project $project)
     {
-        return view('project.edit', ['project' => $schedule]);
+        return view('project.edit', compact('project'));
     }
 
-    public function update(Request $request, Project $schedule)
+    /**
+     * Update the specified project in storage.
+     */
+    public function update(UpdateProjectRequest $request, Project $project)
     {
-        $validated = $request->validate([
-            'date' => 'required|date',
-            'project_name' => 'required|string|max:255',
-            'location' => 'required|string|max:255',
-            'description' => 'required|string',
-        ]);
+        $this->authorize('update', $project);
+        $project->update($request->validated());
 
-        $schedule->update($validated);
-
-        return redirect()->route('project.index')->with('success', 'Jadwal berhasil diperbarui!');
+        return redirect()->route('project.index')
+            ->with('success', 'Project updated successfully.');
     }
 
-    public function destroy(Project $schedule)
+    /**
+     * Remove the specified project from storage.
+     */
+    public function destroy(Project $project)
     {
-        $schedule->delete();
-        return redirect()->route('project.index')->with('success', 'Jadwal berhasil dihapus!');
-    }
+        $this->authorize('delete', $project);
+        $project->delete();
 
-    public function calendar()
-    {
-        $schedules = Project::orderBy('date')->get();
-        return view('project.calendar', compact('schedules'));
+        return redirect()->route('project.index')
+            ->with('success', 'Project deleted successfully.');
     }
 }
