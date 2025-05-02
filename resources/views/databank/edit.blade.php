@@ -20,6 +20,9 @@
                     <div class="w-full h-screen-80 border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
                         <iframe
                             src="{{ $collaboraUrl }}"
+                            <div class="hidden">
+                                 Debug: {{ $collaboraUrl }}
+                            </div>
                             class="w-full h-full"
                             frameborder="0"
                             allowfullscreen

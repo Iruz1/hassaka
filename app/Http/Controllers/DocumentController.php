@@ -59,20 +59,60 @@ class DocumentController extends Controller // Perbaiki huruf besar 'C' pada 'co
         ]);
         }
 
-    public function edit(Document $document)
-    {
 
-        if ($document->user_id !== auth()->id()) {
-            abort(403, 'Unauthorized action.');
-    }
+            public function edit(Document $document)
+            {
+                try {
+                    // Authorization check
+                    $this->authorize('update', $document); // Menggunakan Policy (recommended)
 
+                    // File existence check
+                    if (!Storage::exists("public/{$document->path}")) {
+                        Log::error("File not found: public/{$document->path}");
+                        abort(404, 'File not found in storage');
+                    }
 
-         $wopiSrc = urlencode(route('wopi.files', $document->filename));
-            $collaboraUrl = config('collabora.url') . '/loleaflet/dist/loleaflet.html?WOPISrc=' . $wopiSrc;
+                    // Generate WOPI URL
+                    $collaboraUrl = $this->generateCollaboraUrl($document);
 
-        return view('databank.edit', [
-            'collaboraUrl' => $collaboraUrl,
-            'document' => $document
-        ]);
-    }
+                    return view('databank.edit', [
+                        'collaboraUrl' => $collaboraUrl,
+                        'document' => $document
+                    ]);
+
+                } catch (\Exception $e) {
+                    Log::error("Collabora edit error: " . $e->getMessage());
+                    abort(500, 'Failed to initialize document editor');
+                }
+            }
+
+            /**
+             * Generate Collabora Online URL
+             */
+            protected function generateCollaboraUrl(Document $document): string
+            {
+                $wopiSrc = route('wopi.files', [
+                    'filename' => urlencode($document->filename) // Encode khusus filename
+                ]);
+
+                return config('collabora.url') . '/loleaflet/dist/loleaflet.html?' . http_build_query([
+                    'WOPISrc' => $wopiSrc,
+                    'access_token' => $this->generateAccessToken($document),
+                    'ui' => 'notebookbar', // Opsi tampilan (optional)
+                    'lang' => app()->getLocale() // Sesuaikan bahasa
+                ]);
+            }
+
+            /**
+             * Generate secure access token
+             */
+            protected function generateAccessToken(Document $document): string
+            {
+                return hash_hmac(
+                    'sha256',
+                    $document->id . now()->timestamp,
+                    config('app.key') // Gunakan APP_KEY sebagai salt
+                );
+            }
+
 }

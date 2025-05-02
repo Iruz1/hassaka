@@ -6,6 +6,7 @@ use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ExportController;
 use App\Http\Controllers\InsightController;
+use App\Http\Controllers\DashboardController;
 
 Route::get('/', function () {
     return view('auth.login');
@@ -69,6 +70,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/export', [ExportController::class, 'showExportForm'])->name('insights.export.form');
         Route::get('/export/data', [ExportController::class, 'export'])->name('insights.export');
     });
+
+
+    Route::get('/dashboard', [DashboardController::class, 'index'])
+     ->middleware(['auth'])
+     ->name('dashboard');
+
+
 });
 
 require __DIR__.'/auth.php';
