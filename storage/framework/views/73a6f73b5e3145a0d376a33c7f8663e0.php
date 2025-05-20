@@ -20,9 +20,6 @@
                         <i class="fas fa-plus me-1"></i> Tambah Jadwal
                     </a>
                 <?php endif; ?>
-                <a href="<?php echo e(route('project.calendar')); ?>" class="btn btn-info">
-                    <i class="fas fa-calendar-alt me-1"></i> Lihat Kalender
-                </a>
             </div>
         </div>
      <?php $__env->endSlot(); ?>

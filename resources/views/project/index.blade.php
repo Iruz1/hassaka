@@ -10,9 +10,6 @@
                         <i class="fas fa-plus me-1"></i> Tambah Jadwal
                     </a>
                 @endcan
-                <a href="{{ route('project.calendar') }}" class="btn btn-info">
-                    <i class="fas fa-calendar-alt me-1"></i> Lihat Kalender
-                </a>
             </div>
         </div>
     </x-slot>

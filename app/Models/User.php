@@ -133,4 +133,37 @@ class User extends Authenticatable
             $q->where('name', 'marketing');
         });
     }
+
+     public function isTeknisi(): bool
+    {
+        return $this->role->name === 'teknisi';
+    }
+
+    /**
+     * Cek apakah user adalah finance
+     */
+    public function isFinance(): bool
+    {
+        return $this->role->name === 'finance';
+    }
+
+    /**
+     * Scope untuk mendapatkan hanya teknisi
+     */
+    public function scopeTeknisi($query)
+    {
+        return $query->whereHas('role', function($q) {
+            $q->where('name', 'teknisi');
+        });
+    }
+
+    /**
+     * Scope untuk mendapatkan hanya finance
+     */
+    public function scopeFinance($query)
+    {
+        return $query->whereHas('role', function($q) {
+            $q->where('name', 'finance');
+        });
+    }
 }

@@ -7,8 +7,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
-class DocumentController extends Controller // Perbaiki huruf besar 'C' pada 'controller'
+class DocumentController extends Controller
 {
     public function index()
     {
@@ -32,7 +33,6 @@ class DocumentController extends Controller // Perbaiki huruf besar 'C' pada 'co
         $filename = time() . '_' . $file->getClientOriginalName();
         $path = $file->storeAs('documents', $filename, 'public');
 
-        // Pastikan kolom di sini sesuai dengan migrasi database
         Document::create([
             'user_id' => Auth::id(),
             'title' => $request->title,
@@ -46,73 +46,90 @@ class DocumentController extends Controller // Perbaiki huruf besar 'C' pada 'co
     public function getFile($filename)
     {
         $document = Document::where('filename', $filename)->firstOrFail();
+        $path = storage_path('app/public/' . $document->file_path);
 
-         $path = storage_path('app/public/documents/' . $filename);
-
-         if (!file_exists($path)) {
-        abort(404, 'File not found at: ' . $path);
+        if (!file_exists($path)) {
+            abort(404, 'File not found at: ' . $path);
         }
 
         return response()->file($path, [
             'Content-Type' => mime_content_type($path),
             'X-WOPI-ItemVersion' => $document->updated_at->timestamp
         ]);
+    }
+
+    public function edit(Document $document)
+    {
+        try {
+            $this->authorize('update', $document);
+
+            $path = "public/" . $document->file_path;
+
+            if (!Storage::exists($path)) {
+                Log::error("File not found: {$path}");
+                abort(404, 'File not found in storage');
+            }
+
+            $collaboraUrl = $this->generateCollaboraUrl($document);
+
+            return view('databank.edit', [
+                'collaboraUrl' => $collaboraUrl,
+                'document' => $document
+            ]);
+        } catch (\Exception $e) {
+            Log::error("Collabora edit error: " . $e->getMessage());
+            abort(500, 'Failed to initialize document editor');
         }
+    }
 
+    /**
+     * Menghapus dokumen dari storage dan database
+     *
+     * @param  Document  $document
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function destroy(Document $document)
+    {
+        $this->authorize('delete', $document);
 
-            public function edit(Document $document)
-            {
-                try {
-                    // Authorization check
-                    $this->authorize('update', $document); // Menggunakan Policy (recommended)
-
-                    // File existence check
-                    if (!Storage::exists("public/{$document->path}")) {
-                        Log::error("File not found: public/{$document->path}");
-                        abort(404, 'File not found in storage');
-                    }
-
-                    // Generate WOPI URL
-                    $collaboraUrl = $this->generateCollaboraUrl($document);
-
-                    return view('databank.edit', [
-                        'collaboraUrl' => $collaboraUrl,
-                        'document' => $document
-                    ]);
-
-                } catch (\Exception $e) {
-                    Log::error("Collabora edit error: " . $e->getMessage());
-                    abort(500, 'Failed to initialize document editor');
-                }
+        try {
+            // Hapus file dari storage
+            $storagePath = 'public/' . $document->file_path;
+            if (Storage::exists($storagePath)) {
+                Storage::delete($storagePath);
             }
 
-            /**
-             * Generate Collabora Online URL
-             */
-            protected function generateCollaboraUrl(Document $document): string
-            {
-                $wopiSrc = route('wopi.files', [
-                    'filename' => urlencode($document->filename) // Encode khusus filename
-                ]);
+            // Hapus record dari database
+            $document->delete();
 
-                return config('collabora.url') . '/loleaflet/dist/loleaflet.html?' . http_build_query([
-                    'WOPISrc' => $wopiSrc,
-                    'access_token' => $this->generateAccessToken($document),
-                    'ui' => 'notebookbar', // Opsi tampilan (optional)
-                    'lang' => app()->getLocale() // Sesuaikan bahasa
-                ]);
-            }
+            return Redirect::route('databank')->with('success', 'Dokumen berhasil dihapus');
 
-            /**
-             * Generate secure access token
-             */
-            protected function generateAccessToken(Document $document): string
-            {
-                return hash_hmac(
-                    'sha256',
-                    $document->id . now()->timestamp,
-                    config('app.key') // Gunakan APP_KEY sebagai salt
-                );
-            }
+        } catch (\Exception $e) {
+            Log::error("Error deleting document: " . $e->getMessage());
+            return Redirect::back()->with('error', 'Gagal menghapus dokumen: ' . $e->getMessage());
+        }
+    }
 
+    protected function generateCollaboraUrl(Document $document): string
+    {
+        $wopiSrc = route('wopi.files', [
+            'filename' => urlencode($document->filename)
+        ]);
+
+        return config('collabora.url') . '/loleaflet/dist/loleaflet.html?' . http_build_query([
+            'WOPISrc' => $wopiSrc,
+            'access_token' => $this->generateAccessToken($document),
+            'ui' => 'notebookbar',
+            'lang' => app()->getLocale()
+        ]);
+    }
+
+    protected function generateAccessToken(Document $document): string
+    {
+        return hash_hmac(
+            'sha256',
+            $document->id . now()->timestamp,
+            config('app.key')
+        );
+    }
 }

@@ -17,8 +17,6 @@ return new class extends Migration
             $table->integer('shares')->default(0);
             $table->integer('views')->default(0);
             $table->integer('saves')->default(0);
-            $table->integer('reach')->default(0);
-            $table->integer('engagement')->default(0);
             $table->date('date');
             $table->timestamps();
 

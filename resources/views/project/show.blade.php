@@ -31,6 +31,29 @@
                     <div class="col-md-10">{{ $project->description }}</div>
                 </div>
 
+                <!-- Tambahan untuk log audit -->
+                <div class="row mb-3">
+                    <div class="col-md-2 fw-bold">Dibuat Oleh:</div>
+                    <div class="col-md-10">
+                        {{ $project->createdBy->name ?? 'Admin' }}
+                        <span class="text-muted">
+                            ({{ $project->created_at ? \Carbon\Carbon::parse($project->created_at)->format('d M Y H:i') : 'Waktu tidak tersedia' }})
+                        </span>
+                    </div>
+                </div>
+
+                @if($project->updated_by)
+                <div class="row mb-3">
+                    <div class="col-md-2 fw-bold">Terakhir Diubah Oleh:</div>
+                    <div class="col-md-10">
+                        {{ $project->updatedBy->name ?? 'Admin' }}
+                        <span class="text-muted">
+                            ({{ $project->updated_at ? \Carbon\Carbon::parse($project->updated_at)->format('d M Y H:i') : 'Waktu tidak tersedia' }})
+                        </span>
+                    </div>
+                </div>
+                @endif
+
                 <div class="mt-4">
                     <a href="{{ route('project.edit', $project->id) }}" class="btn btn-warning">
                         <i class="bi bi-pencil"></i> Edit

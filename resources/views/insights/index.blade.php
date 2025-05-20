@@ -19,13 +19,7 @@
                                 </select>
                             </div>
 
-                            <div class="col-md-3">
-                                <input type="date" name="start_date" class="form-control" value="{{ request('start_date') }}">
-                            </div>
 
-                            <div class="col-md-3">
-                                <input type="date" name="end_date" class="form-control" value="{{ request('end_date') }}">
-                            </div>
 
                             <div class="col-md-3">
                                 <button type="submit" class="btn btn-primary">Filter</button>
@@ -48,8 +42,7 @@
                                     <th>Comments</th>
                                     <th>Shares</th>
                                     <th>Views</th>
-                                    <th>Reach</th>
-                                    <th>Engagement</th>
+
                                 </tr>
                             </thead>
                             <tbody>
@@ -62,8 +55,6 @@
                                     <td>{{ number_format($insight->comments) }}</td>
                                     <td>{{ number_format($insight->shares) }}</td>
                                     <td>{{ number_format($insight->views) }}</td>
-                                    <td>{{ number_format($insight->reach) }}</td>
-                                    <td>{{ number_format($insight->engagement) }}</td>
                                 </tr>
                                 @endforeach
                             </tbody>

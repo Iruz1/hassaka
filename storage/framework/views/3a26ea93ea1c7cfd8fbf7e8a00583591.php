@@ -17,8 +17,8 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-grey dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-blue-900 dark:text-gray-100">
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 text-gray-900 dark:text-gray-100">
                     <div class="flex justify-between mb-6">
                         <h3 class="text-lg font-medium">Dokumen Saya</h3>
                         <a href="<?php echo e(route('databank.upload')); ?>" class="px-4 py-2 bg-blue-600 text-grey rounded hover:bg-blue-700">
@@ -47,8 +47,14 @@
                                     <tr>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100"><?php echo e($document->title); ?></td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400"><?php echo e($document->created_at->format('d M Y H:i')); ?></td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                            <a href="<?php echo e(route('databank.edit', $document)); ?>" class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-3">Edit</a>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-4">
+                                            <a href="<?php echo e(asset('storage/' . $document->file_path)); ?>" class="text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300" target="_blank">Lihat</a>
+                                            <a href="<?php echo e(route('databank.edit', $document)); ?>" class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300">Edit</a>
+                                            <form action="<?php echo e(route('databank.destroy', $document)); ?>" method="POST" class="inline">
+                                                <?php echo csrf_field(); ?>
+                                                <?php echo method_field('DELETE'); ?>
+                                                <button type="submit" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300" onclick="return confirm('Apakah Anda yakin ingin menghapus dokumen ini?')">Hapus</button>
+                                            </form>
                                         </td>
                                     </tr>
                                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>

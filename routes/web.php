@@ -20,10 +20,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Databank Routes
     Route::prefix('databank')->group(function () {
-        Route::get('/', [DocumentController::class, 'index'])->name('databank');
-        Route::get('/upload', [DocumentController::class, 'showUploadForm'])->name('databank.upload');
-        Route::post('/upload', [DocumentController::class, 'upload'])->name('databank.upload.submit');
-        Route::get('/edit/{document}', [DocumentController::class, 'edit'])->name('databank.edit');
+         Route::get('/', [DocumentController::class, 'index'])->name('databank');
+         Route::get('/upload', [DocumentController::class, 'showUploadForm'])->name('databank.upload');
+         Route::post('/upload', [DocumentController::class, 'upload'])->name('databank.upload.submit');
+         Route::get('/edit/{document}', [DocumentController::class, 'edit'])->name('databank.edit');
+
+    // Tambahkan route untuk konfirmasi dan aksi penghapusan
+         Route::get('/delete/{document}', [DocumentController::class, 'confirmDelete'])->name('databank.confirm-delete');
+         Route::delete('/{document}', [DocumentController::class, 'destroy'])->name('databank.destroy');
     });
 
     // Documents Routes
@@ -60,15 +64,31 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     // Insights Routes
-    Route::prefix('insights')->group(function () {
-        Route::get('/', [InsightController::class, 'index'])->name('insights.index');
-        Route::get('/fetch', [InsightController::class, 'fetchFromApis'])
-            ->name('insights.fetch')
-            ->middleware('can:fetch-data');
+    Route::prefix('insights')
+    ->name('insights.')
+    ->middleware(['auth', 'verified']) // Apply common middleware
+    ->group(function () {
 
-        // Export Routes
-        Route::get('/export', [ExportController::class, 'showExportForm'])->name('insights.export.form');
-        Route::get('/export/data', [ExportController::class, 'export'])->name('insights.export');
+        // Data Display
+        Route::get('/', [InsightController::class, 'index'])
+            ->name('index');
+
+        // Data Operations
+        Route::middleware('can:fetch-data')->group(function () {
+            Route::post('/fetch', [InsightController::class, 'fetchFromApis'])
+                ->name('fetch'); // Changed to POST for data modification
+        });
+
+        // Export Operations
+        Route::prefix('export')
+            ->name('export.')
+            ->group(function () {
+                Route::get('/', [ExportController::class, 'showExportForm'])
+                    ->name('form');
+
+                Route::post('/data', [ExportController::class, 'export'])
+                    ->name('data'); // Changed to POST for data processing
+            });
     });
 
 

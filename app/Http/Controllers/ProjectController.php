@@ -69,11 +69,25 @@ class ProjectController extends Controller
      */
     public function update(UpdateProjectRequest $request, Project $project)
     {
-        $this->authorize('update', $project);
-        $project->update($request->validated());
+    // Debugging - cek data sebelum update
+    logger()->info('Update data:', $request->all());
 
-        return redirect()->route('project.index')
-            ->with('success', 'Project updated successfully.');
+    $this->authorize('update', $project);
+
+    // Validasi manual jika diperlukan
+    $validated = $request->validated();
+    logger()->info('Validated data:', $validated);
+
+    // Update project
+    $updated = $project->update($validated);
+
+    if (!$updated) {
+        logger()->error('Failed to update project', ['project' => $project->id]);
+        return back()->with('error', 'Failed to update project');
+    }
+
+    return redirect()->route('project.index')
+        ->with('success', 'Project updated successfully.');
     }
 
     /**

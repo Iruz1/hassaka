@@ -29,13 +29,7 @@
                                 </select>
                             </div>
 
-                            <div class="col-md-3">
-                                <input type="date" name="start_date" class="form-control" value="<?php echo e(request('start_date')); ?>">
-                            </div>
 
-                            <div class="col-md-3">
-                                <input type="date" name="end_date" class="form-control" value="<?php echo e(request('end_date')); ?>">
-                            </div>
 
                             <div class="col-md-3">
                                 <button type="submit" class="btn btn-primary">Filter</button>
@@ -58,8 +52,7 @@
                                     <th>Comments</th>
                                     <th>Shares</th>
                                     <th>Views</th>
-                                    <th>Reach</th>
-                                    <th>Engagement</th>
+
                                 </tr>
                             </thead>
                             <tbody>
@@ -72,8 +65,6 @@
                                     <td><?php echo e(number_format($insight->comments)); ?></td>
                                     <td><?php echo e(number_format($insight->shares)); ?></td>
                                     <td><?php echo e(number_format($insight->views)); ?></td>
-                                    <td><?php echo e(number_format($insight->reach)); ?></td>
-                                    <td><?php echo e(number_format($insight->engagement)); ?></td>
                                 </tr>
                                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </tbody>

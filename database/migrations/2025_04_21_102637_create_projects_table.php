@@ -15,11 +15,13 @@ return new class extends Migration {
             $table->text('description');
 
             // Relasi dengan users
-            $table->foreignId('owner_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('owner_id')->constrained('users')->onDelete('restrict');
             $table->foreignId('marketing_id')->nullable()->constrained('users')->onDelete('set null');
-            $table->foreignId('created_by')->constrained('users')->onDelete('cascade');
+            $table->foreignId('created_by')->constrained('users')->onDelete('restrict');
+            $table->foreignId('updated_by')->nullable()->constrained('users')->onDelete('set null');
 
             $table->timestamps();
+            $table->softDeletes(); // Optional: jika ingin menggunakan soft delete
         });
     }
 
