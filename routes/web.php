@@ -19,20 +19,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
 
     // Databank Routes
-    Route::prefix('databank')->group(function () {
-        Route::get('/', [DocumentController::class, 'index'])->name('databank');
-        Route::get('/upload', [DocumentController::class, 'showUploadForm'])->name('databank.upload');
-        Route::post('/upload', [DocumentController::class, 'upload'])->name('databank.upload.submit');
-        Route::get('/edit/{document}', [DocumentController::class, 'edit'])->name('databank.edit');
+    Route::middleware(['auth'])->group(function () {
+    Route::prefix('databank')->name('databank.')->group(function () {
+        Route::get('/', [OnlyOfficeController::class, 'index'])->name('index');
+        Route::get('/upload', [OnlyOfficeController::class, 'create'])->name('upload');
+        Route::post('/upload', [OnlyOfficeController::class, 'store'])->name('upload.submit');
+        Route::get('/edit/{document}', [OnlyOfficeController::class, 'edit'])->name('edit');
+        Route::post('/{document}/callback', [OnlyOfficeController::class, 'callback'])->name('callback');
+        Route::delete('/{document}', [OnlyOfficeController::class, 'destroy'])->name('destroy');
     });
-
-    // Documents Routes
-    Route::get('/documents/{document}/edit', [DocumentController::class, 'edit'])
-        ->name('documents.edit');
-
-    // WOPI Integration
-    Route::get('/wopi/files/{filename}', [DocumentController::class, 'getFile'])
-        ->name('wopi.files');
+});
 
     // Profile Routes
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

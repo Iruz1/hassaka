@@ -1,17 +1,38 @@
-version: '3'
-services:
-  collabora:
-    image: collabora/code:latest
-    container_name: collabora
-    restart: always
-    ports:
-      - "9980:9980"
-    environment:
-      - domain=localhost\|127.0.0.1
-      - DONT_GEN_SSL_CERT=yes
-      - extra_params=--o:ssl.enable=false
-    volumes:
-         - /c/laragon/www/hassaka/storage/app/public/documents:/var/www/html/storage/app/public/documents
-    cap_add:
-      - MKNOD
+version: '3.8'
 
+services:
+  laravel:
+    build:
+      context: ./laravel-app
+      dockerfile: Dockerfile
+    container_name: laravel-app
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./laravel-app:/var/www/html
+    depends_on:
+      - mysql
+
+  mysql:
+    image: mysql:8
+    container_name: laravel-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: laravel
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: laravel
+      MYSQL_PASSWORD:
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  onlyoffice-documentserver:
+    image: onlyoffice/documentserver
+    container_name: onlyoffice
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+
+volumes:
+  mysql_data:

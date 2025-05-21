@@ -13,15 +13,11 @@ return new class extends Migration
     {
         Schema::create('documents', function (Blueprint $table) {
             $table->id();
-            $table->string('title');
-            $table->string('filename'); // Kolom ini diperlukan sesuai controller
-            $table->string('file_path'); // Path penyimpanan file
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->string('name');
+            $table->string('path');
+            $table->string('file_type');
+            $table->foreignId('user_id')->constrained();
             $table->timestamps();
-
-            // Index untuk pencarian lebih cepat
-            $table->index('user_id');
-            $table->index('filename');
         });
     }
 
