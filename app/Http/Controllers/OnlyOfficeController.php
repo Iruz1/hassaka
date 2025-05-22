@@ -12,22 +12,22 @@ class OnlyOfficeController extends Controller
     public function index()
     {
         $documents = Document::where('user_id', auth()->id())->get();
-        return view('dashboard.documents.index', compact('documents'));
+        return view('databank.index', compact('documents'));
     }
 
     public function create()
     {
-        return view('dashboard.documents.create');
+        return view('databank.upload');
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'document' => 'required|file|mimes:doc,docx,rtf,odt,txt,xls,xlsx,ods,csv,ppt,pptx,odp',
+            'document' => 'required|file|mimes:doc,docx,rtf,odt,txt,xls,xlsx,ods,csv,ppt,pptx,odp|max:10240',
         ]);
 
         $file = $request->file('document');
-        $path = $file->store(config('onlyoffice.storage_path'));
+        $path = $file->store('documents');
 
         Document::create([
             'name' => $file->getClientOriginalName(),
@@ -36,35 +36,29 @@ class OnlyOfficeController extends Controller
             'user_id' => auth()->id(),
         ]);
 
-        return redirect()->route('documents.index')->with('success', 'Dokumen berhasil diupload');
+        return redirect()->route('databank.index')->with('success', 'Dokumen berhasil diupload');
     }
 
     public function edit(Document $document)
     {
         $config = OnlyOffice::config()
             ->setDocument($document->name, $document->file_type, Storage::url($document->path))
-            ->setCallbackRoute('documents.callback', $document->id)
+            ->setCallbackRoute('databank.callback', $document->id)
             ->setLang(app()->getLocale())
             ->setUser(auth()->user()->id, auth()->user()->name);
 
-        return view('dashboard.documents.editor', [
-            'config' => $config->toArray(),
+        return view('databank.edit', [
             'document' => $document,
+            'config' => $config->toArray()
         ]);
     }
 
     public function callback(Request $request, Document $document)
     {
-        $status = $request->status;
-
-        if ($status === '2' || $status === '6') { // Dokumen siap untuk disimpan atau telah disimpan
-            $fileUrl = $request->url;
-
-            // Download dan simpan file yang telah diupdate
-            $newContent = file_get_contents($fileUrl);
+        if (in_array($request->status, [2, 6])) { // Document ready for saving or saved
+            $newContent = file_get_contents($request->url);
             Storage::put($document->path, $newContent);
-
-            $document->touch(); // Update timestamp
+            $document->touch();
         }
 
         return response()->json(['error' => 0]);
@@ -74,7 +68,6 @@ class OnlyOfficeController extends Controller
     {
         Storage::delete($document->path);
         $document->delete();
-
         return back()->with('success', 'Dokumen berhasil dihapus');
     }
 }

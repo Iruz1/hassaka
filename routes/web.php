@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\DocumentController;
+use App\Http\Controllers\OnlyOfficeController;;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ExportController;
 use App\Http\Controllers\InsightController;
@@ -19,16 +19,28 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
 
     // Databank Routes
-    Route::middleware(['auth'])->group(function () {
-    Route::prefix('databank')->name('databank.')->group(function () {
-        Route::get('/', [OnlyOfficeController::class, 'index'])->name('index');
-        Route::get('/upload', [OnlyOfficeController::class, 'create'])->name('upload');
-        Route::post('/upload', [OnlyOfficeController::class, 'store'])->name('upload.submit');
-        Route::get('/edit/{document}', [OnlyOfficeController::class, 'edit'])->name('edit');
-        Route::post('/{document}/callback', [OnlyOfficeController::class, 'callback'])->name('callback');
-        Route::delete('/{document}', [OnlyOfficeController::class, 'destroy'])->name('destroy');
+   // Manual routes for Databank
+    // Rute utama databank (sebaiknya gunakan nama 'databank' saja untuk konsistensi)
+    Route::middleware(['auth'])->get('/databank', [OnlyOfficeController::class, 'index'])->name('databank');
+
+    // Rute untuk upload (create dan store)
+    Route::middleware(['auth'])->prefix('databank')->group(function () {
+    // Halaman utama
+        Route::get('/', [OnlyOfficeController::class, 'index'])->name('databank');
+
+        // Upload
+        Route::get('/upload', [OnlyOfficeController::class, 'create'])->name('databank.upload');
+        Route::post('/upload', [OnlyOfficeController::class, 'store'])->name('databank.upload.submit');
+
+        // Edit
+        Route::get('/edit/{document}', [OnlyOfficeController::class, 'edit'])->name('databank.edit');
+
+        // Callback
+        Route::post('/{document}/callback', [OnlyOfficeController::class, 'callback'])->name('databank.callback');
+
+        // Delete
+        Route::delete('/{document}', [OnlyOfficeController::class, 'destroy'])->name('databank.destroy');
     });
-});
 
     // Profile Routes
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
