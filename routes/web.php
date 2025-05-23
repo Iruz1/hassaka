@@ -30,7 +30,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Upload
         Route::get('/upload', [OnlyOfficeController::class, 'create'])->name('databank.upload');
-        Route::post('/upload', [OnlyOfficeController::class, 'store'])->name('databank.upload.submit');
+        Route::post('/upload', [OnlyOfficeController::class, 'store'])->name('databank.upload');
 
         // Edit
         Route::get('/edit/{document}', [OnlyOfficeController::class, 'edit'])->name('databank.edit');

@@ -44,12 +44,15 @@ return new class extends Migration
             $table->integer('last_activity')->index();
         });
 
-        // Seed default roles
+
         DB::table('roles')->insert([
             ['name' => 'owner', 'description' => 'Pemilik sistem'],
             ['name' => 'admin', 'description' => 'Administrator sistem'],
             ['name' => 'marketing', 'description' => 'Staff marketing'],
+            ['name' => 'finance', 'description' => 'Staff keuangan'],
+            ['name' => 'teknisi', 'description' => 'Teknisi lapangan'],
         ]);
+
     }
 
     /**

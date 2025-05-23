@@ -11,20 +11,36 @@
                 </div>
 
                 <!-- Navigation Links -->
+                            <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="text-white hover:text-blue-100">
                         {{ __('Dashboard') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('databank')" :active="request()->routeIs('databank')" class="text-white hover:text-blue-100">
-                        {{ __('Databank') }}
-                    </x-nav-link>
-                    <x-nav-link :href="route('project.index')" :active="request()->routeIs('project.index')" class="text-white hover:text-blue-100">
-                        {{ __('Schedule') }}
-                    </x-nav-link>
-                    <x-nav-link :href="route('insights.index')" :active="request()->routeIs('insights.index')" class="text-white hover:text-blue-100">
-                        {{ __('Insight') }}
-                    </x-nav-link>
+
+                    @php
+                        $role = Auth::user()->role->name;
+                    @endphp
+
+                    @if($role === 'admin' || $role === 'owner' || $role === 'finance')
+                        <x-nav-link :href="route('databank')" :active="request()->routeIs('databank')" class="text-white hover:text-blue-100">
+                            {{ __('Databank') }}
+                        </x-nav-link>
+                    @endif
+
+                    @if($role === 'admin' || $role === 'owner' || $role === 'teknisi')
+                        <x-nav-link :href="route('project.index')" :active="request()->routeIs('project.index')" class="text-white hover:text-blue-100">
+                            {{ __('Schedule') }}
+                        </x-nav-link>
+                    @endif
+
+                    @if($role === 'admin' || $role === 'marketing')
+                        <x-nav-link :href="route('insights.index')" :active="request()->routeIs('insights.index')" class="text-white hover:text-blue-100">
+                            {{ __('Insight') }}
+                        </x-nav-link>
+                    @endif
                 </div>
+
+
             </div>
 
             <!-- Settings Dropdown -->
