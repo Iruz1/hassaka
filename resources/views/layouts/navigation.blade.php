@@ -22,7 +22,7 @@
                     @endphp
 
                     @if($role === 'admin' || $role === 'owner' || $role === 'finance')
-                        <x-nav-link :href="route('databank')" :active="request()->routeIs('databank')" class="text-white hover:text-blue-100">
+                        <x-nav-link :href="route('databank.index')" :active="request()->routeIs('databank')" class="text-white hover:text-blue-100">
                             {{ __('Databank') }}
                         </x-nav-link>
                     @endif

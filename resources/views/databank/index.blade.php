@@ -7,13 +7,15 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-grey dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-blue-900 dark:text-gray-100">
+
                     <div class="flex justify-between mb-6">
                         <h3 class="text-lg font-medium">Dokumen Saya</h3>
-                        <a href="{{ route('databank.upload') }}" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-                            Upload Dokumen Baru
-                        </a>
+                        <div class="space-x-2">
+                            <a href="{{ route('databank.connect') }}" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-sm rounded">Reconnect</a>
+                            <a href="{{ route('databank.upload.form') }}" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Upload Dokumen Baru</a>
+                        </div>
                     </div>
 
                     @if(session('success'))
@@ -28,22 +30,22 @@
                                 <tr>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Nama Dokumen</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Tipe</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Terakhir Diubah</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200">
-                                @forelse($documents as $document)
+                                @forelse($files->files as $file)
                                     <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ $document->name }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ strtoupper($document->file_type) }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ $document->updated_at->format('d M Y H:i') }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                            <a href="{{ route('databank.edit', $document) }}" class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-3">Edit</a>
-                                            <form action="{{ route('databank.destroy', $document) }}" method="POST" class="inline">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ $file->name }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ $file->mimeType }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                                            <a href="{{ $file->webViewLink }}" target="_blank" class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300">View</a>
+                                            <a href="{{ route('databank.edit', $file->id) }}" class="text-yellow-600 hover:text-yellow-900 dark:text-yellow-400 dark:hover:text-yellow-300">Edit</a>
+                                            <a href="{{ route('databank.share.form', $file->id) }}" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300">Share</a>
+                                            <form action="{{ route('databank.delete', $file->id) }}" method="POST" class="inline">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300" onclick="return confirm('Hapus dokumen ini?')">
+                                                <button type="submit" onclick="return confirm('Yakin ingin menghapus file ini?')" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">
                                                     Hapus
                                                 </button>
                                             </form>
@@ -51,7 +53,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">Belum ada dokumen</td>
+                                        <td colspan="3" class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">Belum ada file ditemukan</td>
                                     </tr>
                                 @endforelse
                             </tbody>

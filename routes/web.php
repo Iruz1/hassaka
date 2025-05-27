@@ -7,6 +7,7 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ExportController;
 use App\Http\Controllers\InsightController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\GoogleDriveController;
 
 Route::get('/', function () {
     return view('auth.login');
@@ -18,29 +19,23 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return view('dashboard');
     })->name('dashboard');
 
-    // Databank Routes
-   // Manual routes for Databank
-    // Rute utama databank (sebaiknya gunakan nama 'databank' saja untuk konsistensi)
-    Route::middleware(['auth'])->get('/databank', [OnlyOfficeController::class, 'index'])->name('databank');
 
-    // Rute untuk upload (create dan store)
-    Route::middleware(['auth'])->prefix('databank')->group(function () {
-    // Halaman utama
-        Route::get('/', [OnlyOfficeController::class, 'index'])->name('databank');
 
-        // Upload
-        Route::get('/upload', [OnlyOfficeController::class, 'create'])->name('databank.upload');
-        Route::post('/upload', [OnlyOfficeController::class, 'store'])->name('databank.upload');
 
-        // Edit
-        Route::get('/edit/{document}', [OnlyOfficeController::class, 'edit'])->name('databank.edit');
+    Route::prefix('google-drive')->middleware(['auth'])->group(function () {
+        Route::get('/connect', [GoogleDriveController::class, 'connect'])->name('databank.connect');
+        Route::get('/callback', [GoogleDriveController::class, 'callback'])->name('databank.callback');
 
-        // Callback
-        Route::post('/{document}/callback', [OnlyOfficeController::class, 'callback'])->name('databank.callback');
-
-        // Delete
-        Route::delete('/{document}', [OnlyOfficeController::class, 'destroy'])->name('databank.destroy');
+        Route::get('/files', [GoogleDriveController::class, 'listFiles'])->name('databank.index');
+        Route::get('/upload', [GoogleDriveController::class, 'uploadForm'])->name('databank.upload.form');
+        Route::post('/upload', [GoogleDriveController::class, 'upload'])->name('databank.upload');
+        Route::get('/edit/{fileId}', [GoogleDriveController::class, 'edit'])->name('databank.edit');
+        Route::put('/update/{fileId}', [GoogleDriveController::class, 'update'])->name('databank.update');
+        Route::get('/share/{fileId}', [GoogleDriveController::class, 'shareForm'])->name('databank.share.form');
+        Route::post('/share/{fileId}', [GoogleDriveController::class, 'share'])->name('databank.share');
+        Route::delete('/delete/{fileId}', [GoogleDriveController::class, 'delete'])->name('databank.delete');
     });
+
 
     // Profile Routes
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
